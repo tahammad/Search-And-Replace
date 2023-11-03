@@ -1,81 +1,102 @@
 #include "hw5.h"
 
-//Helper boolean
-int is_punct_or_space(char c) {
+// Helper boolean
+int is_punct_or_space(char c)
+{
     return isspace(c) || ispunct(c);
 }
-//Helper function to replace the words in oldLine with the suffix of searchArg with replaceArg
-char* suffixReplace(const char* oldLine, const char* searchArg, const char* replaceArg) {
+// Helper function to replace the words in oldLine with the suffix of searchArg with replaceArg
+char *suffixReplace(const char *oldLine, const char *searchArg, const char *replaceArg)
+{
     int i, j, count = 0;
-    int searchArglen = strlen(searchArg);//Length of searchArg string
-    int replaceArglen = strlen(replaceArg);//Length of replaceArg string
-    char* newLine;//New line that helper function returns
-    
-    //Find the number of times the suffix is a the end of a word
-    for (i = 0; oldLine[i] != '\0';) { 
-        //Check if its the beginning of a word
-        if (i == 0 || is_punct_or_space(oldLine[i-1])) { 
-            int beginning = i; 
-            //Find the end of the word
-            while (oldLine[i] != '\0' && !isspace(oldLine[i]) && !ispunct(oldLine[i])) { 
+    int searchArglen = strlen(searchArg);   // Length of searchArg string
+    int replaceArglen = strlen(replaceArg); // Length of replaceArg string
+    char *newLine;                          // New line that helper function returns
+
+    // Find the number of times the suffix is a the end of a word
+    for (i = 0; oldLine[i] != '\0';)
+    {
+        // Check if its the beginning of a word
+        if (i == 0 || is_punct_or_space(oldLine[i - 1]))
+        {
+            int beginning = i;
+            // Find the end of the word
+            while (oldLine[i] != '\0' && !isspace(oldLine[i]) && !ispunct(oldLine[i]))
+            {
                 i++;
             }
-            int end = i - 1; 
-            //If the suffix is at the end of the word increment count
-            if (end - beginning + 1 >= searchArglen && strncmp(&oldLine[end - searchArglen + 1], searchArg, searchArglen) == 0) { 
-                count++;                                                                                                   
+            int end = i - 1;
+            // If the suffix is at the end of the word increment count
+            if (end - beginning + 1 >= searchArglen && strncmp(&oldLine[end - searchArglen + 1], searchArg, searchArglen) == 0)
+            {
+                count++;
             }
-            if (oldLine[i] != '\0') i++;  
-        } else {
+            if (oldLine[i] != '\0')
+                i++;
+        }
+        else
+        {
             i++;
         }
     }
 
-    newLine = malloc(strlen(oldLine) + count * (replaceArglen - searchArglen) + 1); 
+    newLine = malloc(strlen(oldLine) + count * (replaceArglen - searchArglen) + 1);
 
     i = 0;
     int k = 0;
-    while (oldLine[i]) { 
-        //Check if its the beginning of a word
-        if (i == 0 || is_punct_or_space(oldLine[i-1])) { 
+    while (oldLine[i])
+    {
+        // Check if its the beginning of a word
+        if (i == 0 || is_punct_or_space(oldLine[i - 1]))
+        {
             int beginning = i;
-            //Find the index of the end of the word
-            while (oldLine[i] != '\0' && !isspace(oldLine[i]) && !ispunct(oldLine[i])) { 
+            // Find the index of the end of the word
+            while (oldLine[i] != '\0' && !isspace(oldLine[i]) && !ispunct(oldLine[i]))
+            {
                 i++;
             }
-            int end = i - 1; 
-            //If the suffix is at the end of the word then replace the searchArg with replaceArg
-            if (end - beginning + 1 >= searchArglen && strncmp(&oldLine[end - searchArglen + 1], searchArg, searchArglen) == 0) {
-                for (j = 0; j < replaceArglen; j++) {
+            int end = i - 1;
+            // If the suffix is at the end of the word then replace the searchArg with replaceArg
+            if (end - beginning + 1 >= searchArglen && strncmp(&oldLine[end - searchArglen + 1], searchArg, searchArglen) == 0)
+            {
+                for (j = 0; j < replaceArglen; j++)
+                {
                     newLine[k] = replaceArg[j];
-                    k++; 
+                    k++;
                 }
-                while (oldLine[i] != '\0' && (is_punct_or_space(oldLine[i]))) {
-                    newLine[k] = oldLine[i]; 
+                while (oldLine[i] != '\0' && (is_punct_or_space(oldLine[i])))
+                {
+                    newLine[k] = oldLine[i];
                     k++;
                     i++;
                 }
-                //Else you copy from the oldLine
-            } else {
-                while (beginning <= end) { 
+                // Else you copy from the oldLine
+            }
+            else
+            {
+                while (beginning <= end)
+                {
                     newLine[k] = oldLine[beginning];
                     k++;
                     beginning++;
                 }
-                while (oldLine[i] != '\0' && (is_punct_or_space(oldLine[i]))) {
-                    newLine[k] = oldLine[i]; 
+                while (oldLine[i] != '\0' && (is_punct_or_space(oldLine[i])))
+                {
+                    newLine[k] = oldLine[i];
                     k++;
                     i++;
                 }
             }
-            //If not the beginning of a word then copy from the oldLine
-        } else { 
+            // If not the beginning of a word then copy from the oldLine
+        }
+        else
+        {
             newLine[k] = oldLine[i];
             k++;
             i++;
         }
     }
-    //Add the null terminator 
+    // Add the null terminator
     newLine[k] = '\0';
     return newLine;
 }
@@ -148,28 +169,40 @@ char *replace(char *oldLine, char *searchAr, char *replaceAr)
     return newLine;
 }
 
-char *prefixReplace(char *oldLine, char *searchArg, char *replaceArg) {
+// Helper function to perform search&replace when we replace words that have the prefix of searchArg
+char *prefixReplace(char *oldLine, char *searchArg, char *replaceArg)
+{
     int searchArlen = strlen(searchArg);
     int replaceArlen = strlen(replaceArg);
     int oldLine_len = strlen(oldLine);
 
     char *newLine;
-    //Responsible for finding the difference in size of the strings and allocating space
-    if (searchArlen == replaceArlen) {
+    // Responsible for finding the difference in size of the strings and allocating space
+    if (searchArlen == replaceArlen)
+    {
         newLine = malloc((oldLine_len + 1) * sizeof(char));
-    } else {
+    }
+    else
+    {
         int wordCount = 0;
         int i = 0;
-        while (i < oldLine_len) {
-            if (strstr(&oldLine[i], searchArg) == &oldLine[i]) {
+        while (i < oldLine_len)
+        {
+            if (strstr(&oldLine[i], searchArg) == &oldLine[i])
+            {
                 // Check if it's at the beginning of the line or preceded by punctuations/spaces
-                if (i == 0 || is_punct_or_space(oldLine[i - 1])) {
+                if (i == 0 || is_punct_or_space(oldLine[i - 1]))
+                {
                     wordCount++;
                     i += searchArlen;
-                } else {
+                }
+                else
+                {
                     i++;
                 }
-            } else {
+            }
+            else
+            {
                 i++;
             }
         }
@@ -181,25 +214,32 @@ char *prefixReplace(char *oldLine, char *searchArg, char *replaceArg) {
 
     int i = 0;
     int j = 0;
-    while (i < oldLine_len) {
-        //If it finds the word in that line
-        if (strstr(&oldLine[i], searchArg) == &oldLine[i]) {
-            if ((i == 0 || is_punct_or_space(oldLine[i - 1]))) {
+    while (i < oldLine_len)
+    {
+        // If it finds the word in that line
+        if (strstr(&oldLine[i], searchArg) == &oldLine[i])
+        {
+            if ((i == 0 || is_punct_or_space(oldLine[i - 1])))
+            {
                 strcpy(&newLine[j], replaceArg);
                 j += replaceArlen;
                 i += searchArlen;
-                //Increment j until it finds a punctuation,space or end of line and add a space to newLine at that point
-                while (!is_punct_or_space(oldLine[i]) && oldLine[i] != '\0') {
+                // Increment j until it finds a punctuation,space or end of line and add a space to newLine at that point
+                while (!is_punct_or_space(oldLine[i]) && oldLine[i] != '\0')
+                {
 
                     i++;
                 }
-
-            } else {
+            }
+            else
+            {
                 newLine[j] = oldLine[i];
                 i++;
                 j++;
             }
-        } else {
+        }
+        else
+        {
             newLine[j] = oldLine[i];
             i++;
             j++;
@@ -220,19 +260,20 @@ int main(int argc, char *argv[])
     int rCount = 0;
     int lCount = 0;
     int wCount = 0;
-    //Our arguments 
+    // Our arguments
     char *searchArg = NULL;
     char *replaceArg = NULL;
     long int lArg1Long = 0;
     long int lArg2Long = 0;
-    //Flags and booleans to check if we have certain arguments
+    // Flags and booleans to check if we have certain arguments
     int wFlag = 0;
     int sFlag = 0;
     int rFlag = 0;
     int wsFlag = 0;
-    int lFlag=0;
+    int lFlag = 0;
     bool suffixSearch = false;
     bool prefixSearch = false;
+    bool toomanystars = false;
     int opt;
     extern char *optarg;
     extern int optind;
@@ -250,15 +291,26 @@ int main(int argc, char *argv[])
             {
                 wsFlag = 1;
             }
-            if (wsFlag == 1) {
-                    if (searchArg[0] == '*') {
-                        searchArg = &searchArg[1];
-                        suffixSearch = true;
-                    } else {
-                        searchArg[strlen(searchArg) - 1] = '\0';
-                        prefixSearch = true;
-                    }
+            // If wsflag, check if there are more than one '*' at the beginning or the end of the argument to the -s flag
+
+            if ((searchArg[0] == '*' && searchArg[strlen(searchArg) - 1] == '*') || (searchArg[0] == '*' && searchArg[1] == '*') || (searchArg[strlen(searchArg) - 1] == '*' && searchArg[strlen(searchArg) - 2] == '*'))
+            {
+                toomanystars = true;
+            }
+
+            if (wsFlag == 1)
+            {
+                if (searchArg[0] == '*')
+                {
+                    searchArg = &searchArg[1];
+                    suffixSearch = true;
                 }
+                else
+                {
+                    searchArg[strlen(searchArg) - 1] = '\0';
+                    prefixSearch = true;
+                }
+            }
             break;
         case 'r':
             rCount++;
@@ -266,7 +318,7 @@ int main(int argc, char *argv[])
             replaceArg = optarg;
             break;
         case 'l':
-            lFlag=1;
+            lFlag = 1;
             lCount++;
             break;
         case 'w':
@@ -303,7 +355,7 @@ int main(int argc, char *argv[])
     {
         return S_ARGUMENT_MISSING;
     }
-    // If the -r argument is missing, or the argument to -r is missing return 5
+    // If the -r argument is missing, or the argument to -r is missing return R_ARGUMENT_MISSING
     if (rFlag == 0)
     {
         return R_ARGUMENT_MISSING;
@@ -313,7 +365,7 @@ int main(int argc, char *argv[])
     {
         return R_ARGUMENT_MISSING;
     }
-   
+
     for (int i = 1; i < argc - 2; i++)
     {
         if (strcmp(argv[i], "-l") == 0)
@@ -368,16 +420,24 @@ int main(int argc, char *argv[])
     {
         return WILDCARD_INVALID;
     }
-    //Goes through the lines of input file and based on args provided does a type of search&replace
+    if (toomanystars==true)
+    {
+        return WILDCARD_INVALID;
+    }
+    // Goes through the lines of input file and based on args provided does a type of search&replace
 
-    //If no lines were specified to read from, we read all lines of the file to check
-   if (lFlag == 0) {
-        //If we are doing a wildcard search
-        if (wsFlag == 1 && wFlag == 1) {
-            //If we are doing a prefix search
-            if (prefixSearch) {
+    // If no lines were specified to read from, we read all lines of the file to check
+    if (lFlag == 0)
+    {
+        // If we are doing a wildcard search
+        if (wsFlag == 1 && wFlag == 1)
+        {
+            // If we are doing a prefix search
+            if (prefixSearch)
+            {
                 char line[MAX_LINE];
-                while (fgets(line, MAX_LINE, inputFile) != NULL) {
+                while (fgets(line, MAX_LINE, inputFile) != NULL)
+                {
                     char *newLine = prefixReplace(line, searchArg, replaceArg);
                     // Copy the new line into the old line
                     strcpy(line, newLine);
@@ -387,11 +447,13 @@ int main(int argc, char *argv[])
                     fprintf(outputFile, "%s", line);
                 }
             }
-            //If we are doing a suffix search
-            if (suffixSearch) {
+            // If we are doing a suffix search
+            if (suffixSearch)
+            {
                 char line[MAX_LINE];
-                //int lineCount = 0;
-                while (fgets(line, MAX_LINE, inputFile) != NULL) {
+                // int lineCount = 0;
+                while (fgets(line, MAX_LINE, inputFile) != NULL)
+                {
                     char *newLine = suffixReplace(line, searchArg, replaceArg);
                     // Copy the new line into the old line
                     strcpy(line, newLine);
@@ -401,11 +463,13 @@ int main(int argc, char *argv[])
                     fprintf(outputFile, "%s", line);
                 }
             }
-
-        } else {
-            //If we are not doing a wildcard search do a normal search&replace for all lines in file
+        }
+        else
+        {
+            // If we are not doing a wildcard search do a normal search&replace for all lines in file
             char line[MAX_LINE];
-            while (fgets(line, MAX_LINE, inputFile) != NULL) {
+            while (fgets(line, MAX_LINE, inputFile) != NULL)
+            {
                 char *newLine = replace(line, searchArg, replaceArg);
                 // Copy the new line into the old line
                 strcpy(line, newLine);
@@ -415,15 +479,21 @@ int main(int argc, char *argv[])
                 fprintf(outputFile, "%s", line);
             }
         }
-    } else {
-        if (wsFlag == 1 && wFlag == 1) {
-            if(prefixSearch){
+    }
+    else
+    {
+        if (wsFlag == 1 && wFlag == 1)
+        {
+            if (prefixSearch)
+            {
                 char line[MAX_LINE];
                 int lineCount = 0;
-                while (fgets(line, MAX_LINE, inputFile) != NULL) {
+                while (fgets(line, MAX_LINE, inputFile) != NULL)
+                {
                     lineCount++;
                     // If the line is within the range of lines to be read
-                    if (lineCount >= lArg1Long && lineCount <= lArg2Long) {
+                    if (lineCount >= lArg1Long && lineCount <= lArg2Long)
+                    {
                         // Find and replace all occurrences of searchArg
                         char *newLine = prefixReplace(line, searchArg, replaceArg);
                         // Copy the new line into the old line
@@ -434,13 +504,16 @@ int main(int argc, char *argv[])
                     fprintf(outputFile, "%s", line);
                 }
             }
-            if(suffixSearch){
+            if (suffixSearch)
+            {
                 char line[MAX_LINE];
                 int lineCount = 0;
-                while (fgets(line, MAX_LINE, inputFile) != NULL) {
+                while (fgets(line, MAX_LINE, inputFile) != NULL)
+                {
                     lineCount++;
                     // If the line is within the range of lines to be read
-                    if (lineCount >= lArg1Long && lineCount <= lArg2Long) {
+                    if (lineCount >= lArg1Long && lineCount <= lArg2Long)
+                    {
                         // Find and replace all occurrences of searchArg
                         char *newLine = suffixReplace(line, searchArg, replaceArg);
                         // Copy the new line into the old line
@@ -451,14 +524,17 @@ int main(int argc, char *argv[])
                     fprintf(outputFile, "%s", line);
                 }
             }
-
-        } else {
+        }
+        else
+        {
             char line[MAX_LINE];
             int lineCount = 0;
-            while (fgets(line, MAX_LINE, inputFile) != NULL) {
+            while (fgets(line, MAX_LINE, inputFile) != NULL)
+            {
                 lineCount++;
                 // If the line is within the range of lines to be read
-                if (lineCount >= lArg1Long && lineCount <= lArg2Long) {
+                if (lineCount >= lArg1Long && lineCount <= lArg2Long)
+                {
                     // Find and replace all occurrences of searchArg
                     char *newLine = replace(line, searchArg, replaceArg);
                     // Copy the new line into the old line
