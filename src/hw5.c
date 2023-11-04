@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
             {
                 wsFlag = 1;
             }
-            // Check if there are more than one '*' at the beginning or the end of the argument to the -s flag
+            // Checks if there are more than one '*' at the beginning or the end of the argument to the -s flag
 
             if ((searchArg[0] == '*' && searchArg[strlen(searchArg) - 1] == '*') || (searchArg[0] == '*' && searchArg[1] == '*') || (searchArg[strlen(searchArg) - 1] == '*' && searchArg[strlen(searchArg) - 2] == '*'))
             {
