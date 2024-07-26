@@ -1,4 +1,4 @@
-#include "hw5.h"
+#include "searchreplace.h"
 
 // Helper boolean
 int is_punct_or_space(char c)
